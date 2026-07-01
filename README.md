@@ -1,59 +1,97 @@
-# FinancePlus Mail Archive Enterprise
+# FinancePlus Mail Archive - GitHub + Streamlit AUTH FIX
 
-Web App Google Apps Script per archiviazione automatica email, allegati, clienti, mittenti, report PDF e gestione anti-duplicati.
+Versione corretta per Streamlit Cloud basata su Gmail IMAP e **Password per app Google**.
 
-## Funzioni principali
+Questa versione e' stata preparata per risolvere gli errori:
 
-- Scarica email e allegati da Gmail.
-- Crea automaticamente anagrafica cliente.
-- Riconosce cliente da oggetto, corpo email, nome allegato e testo estratto.
-- Registra automaticamente i mittenti.
-- Archivia documenti in Google Drive per cliente.
-- Salva i documenti non abbinati in cartella temporanea `Temporanea - Da abbinare / DA VERIFICARE`.
-- Evita duplicati tramite hash MD5.
-- Crea Registro Master in Google Sheet.
-- Genera report PDF cliente e mittente.
-- Permette eliminazione da Gmail delle email selezionate gia salvate.
-- Salva le impostazioni una sola volta.
-- Supporta scarico automatico tramite trigger orario.
+```text
+Application-specific password required
+[AUTHENTICATIONFAILED] Invalid credentials
+```
 
-## File principali
+## Perche' succede
 
-| File | Descrizione |
+Gmail non consente l'accesso IMAP con la password normale dell'account Google. Per app esterne serve una password specifica per app, generata dall'account Google, dopo l'attivazione della verifica in due passaggi.
+
+## Avvio locale
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+## Configurazione locale sicura
+
+Copia:
+
+```text
+.streamlit/secrets.example.toml
+```
+
+in:
+
+```text
+.streamlit/secrets.toml
+```
+
+Poi modifica:
+
+```toml
+[gmail]
+email = "dangelo.danilo.pri@gmail.com"
+app_password = "PASSWORD_PER_APP_16_CARATTERI"
+```
+
+`secrets.toml` e' escluso da GitHub tramite `.gitignore`.
+
+## Configurazione Streamlit Cloud
+
+Non caricare mai la password in GitHub.
+
+Su Streamlit Cloud vai in:
+
+```text
+Manage app > Settings > Secrets
+```
+
+Incolla:
+
+```toml
+[gmail]
+email = "dangelo.danilo.pri@gmail.com"
+app_password = "PASSWORD_PER_APP_16_CARATTERI"
+```
+
+## Funzioni
+
+| Area | Funzione |
 |---|---|
-| `Code.gs` | Backend Apps Script: Gmail, Drive, Sheet, PDF, trigger, eliminazione email |
-| `Index.html` | Dashboard Web App FinancePlus |
-| `appsscript.json` | Manifest con autorizzazioni e Advanced Drive Service |
-| `docs/INSTALLAZIONE_GITHUB.md` | Guida per GitHub e clasp |
-| `docs/ISTRUZIONI_RAPIDE.md` | Procedura rapida |
+| Scarico mail | Cerca mail per data, mittenti e allegati |
+| Scarico multiplo | Selezione di piu' mail o tutte quelle trovate |
+| Archivio | Salvataggio corpo mail e allegati in cartelle cliente/anno/mese |
+| Anagrafica | Creazione automatica cliente se riconosciuto |
+| Temporanea | Mail non riconosciute in `_TEMP_DA_ABBINARE` |
+| Anti duplicato | MD5 su ogni allegato |
+| Eliminazione sicura | Cestina solo se la mail e' gia' salvata nel database |
+| Archiviazione sicura | Archivia solo se la mail e' gia' salvata nel database |
+| Report | CSV e ZIP archivio |
 
-## Installazione rapida manuale
+## Nota su Streamlit Cloud
 
-1. Apri Google Apps Script.
-2. Crea un nuovo progetto.
-3. Incolla `Code.gs` nel file `Code.gs`.
-4. Crea il file HTML `Index.html` e incolla il contenuto.
-5. Da Impostazioni progetto attiva la visualizzazione del manifest.
-6. Sostituisci `appsscript.json`.
-7. Salva.
-8. Esegui `setup`.
-9. Autorizza Gmail, Drive, Documenti, Fogli e Trigger.
-10. Distribuisci come Web App.
+Lo spazio disco di Streamlit Cloud puo' non essere permanente dopo riavvii o redeploy. Per conservazione definitiva scarica periodicamente lo ZIP dell'archivio oppure collega in futuro Google Drive/pCloud come storage esterno.
 
-## Installazione GitHub con clasp
 
-Vedi `docs/INSTALLAZIONE_GITHUB.md`.
+## Mittenti autorizzati
 
-## Primo uso nella dashboard
+Questa versione scarica SOLO le mail provenienti da:
 
-1. Apri il link della Web App.
-2. Premi `Inizializza struttura`.
-3. Salva le impostazioni una sola volta.
-4. Premi `Scarica adesso`.
-5. Verifica le cartelle Drive e il Registro Master.
+- elibetty731@gmail.com
+- Valentinaboratto82@gmail.com
+- stefano.faraone@eurofintechsrl.it
+- praticheBS@proton.me
+- sergio.pedolazzi@katudi.it
+- paolo.baldinelli@katudi.it
+- pratiche@katudi.it
+- niccolo.sovico@ener2crowd.com
 
-## Note operative
-
-Il foglio `Alias` e facoltativo. Serve solo per correggere o rafforzare il riconoscimento dei clienti quando i nomi nelle email sono abbreviati o ambigui.
-
-I mittenti sono letti automaticamente da Gmail. Non vanno inseriti manualmente.
+Vedi anche `docs/MITTENTI_AUTORIZZATI.md`.

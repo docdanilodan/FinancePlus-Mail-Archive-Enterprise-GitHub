@@ -1,0 +1,8 @@
+cd FinancePlus_MailArchive_GitHub_AUTH_FIX
+
+git init
+git add .
+git commit -m "FinancePlus Mail Archive auth fix"
+git branch -M main
+git remote add origin https://github.com/TUO-UTENTE/financeplus-mail-archive-auth-fix.git
+git push -u origin main
