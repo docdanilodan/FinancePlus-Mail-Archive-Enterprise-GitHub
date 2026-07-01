@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FinancePlus Mail Archive Enterprise</title>
+  <style>
+    :root {
+      --blue-900: #071b33;
+      --blue-800: #0a2748;
+      --blue-700: #123a63;
+      --copper: #b8783b;
+      --copper-light: #d79b5d;
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #152033;
+      --muted: #697586;
+      --danger: #a83232;
+      --ok: #20744a;
+      --warning: #a86d17;
+      --border: #dbe3ef;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+    }
+    .app {
+      display: grid;
+      grid-template-columns: 285px 1fr;
+      min-height: 100vh;
+    }
+    .sidebar {
+      background: linear-gradient(180deg, var(--blue-900), var(--blue-800));
+      color: white;
+      padding: 24px 18px;
+      box-shadow: 8px 0 24px rgba(7,27,51,0.18);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(135deg, var(--copper), var(--copper-light));
+      color: white;
+      font-size: 24px;
+      font-weight: 800;
+    }
+    .brand h1 {
+      margin: 0;
+      font-size: 17px;
+      line-height: 1.1;
+      letter-spacing: .2px;
+    }
+    .brand span {
+      display: block;
+      color: #bfd0e6;
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    .nav button {
+      width: 100%;
+      border: 1px solid rgba(255,255,255,0.09);
+      background: rgba(255,255,255,0.05);
+      color: white;
+      padding: 13px 14px;
+      text-align: left;
+      border-radius: 14px;
+      margin-bottom: 10px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: .18s ease;
+    }
+    .nav button:hover, .nav button.active {
+      background: rgba(184,120,59,0.24);
+      border-color: rgba(215,155,93,0.8);
+      transform: translateX(2px);
+    }
+    .main {
+      padding: 26px;
+      overflow: auto;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+      gap: 14px;
+    }
+    .topbar h2 {
+      margin: 0;
+      font-size: 24px;
+      color: var(--blue-900);
+    }
+    .subtitle { color: var(--muted); margin-top: 4px; font-size: 14px; }
+    .pill {
+      background: #fff7ef;
+      color: #7f4d1d;
+      border: 1px solid #eed0ac;
+      padding: 9px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      white-space: nowrap;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(160px, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+      box-shadow: 0 10px 24px rgba(17,38,67,0.05);
+    }
+    .stat-label { color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: .6px; }
+    .stat-value { font-size: 25px; color: var(--blue-900); font-weight: 800; margin-top: 8px; }
+    .panel {
+      display: none;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 20px;
+      box-shadow: 0 10px 24px rgba(17,38,67,0.05);
+    }
+    .panel.active { display: block; }
+    .panel h3 { margin: 0 0 12px; color: var(--blue-900); font-size: 20px; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 14px 0; }
+    .btn {
+      border: 0;
+      background: var(--blue-800);
+      color: white;
+      padding: 11px 15px;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 8px 16px rgba(10,39,72,.18);
+    }
+    .btn.secondary { background: var(--copper); }
+    .btn.light { background: #e8eef7; color: var(--blue-900); box-shadow: none; }
+    .btn.danger { background: var(--danger); }
+    input, select {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 12px;
+      font-size: 14px;
+      min-width: 180px;
+      background: #fff;
+    }
+    .form-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 12px 0; align-items: center; }
+    .status {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      background: #f8fafc;
+      margin: 14px 0;
+      color: var(--muted);
+      white-space: pre-wrap;
+    }
+    .status.ok { color: var(--ok); border-color: #cfe9db; background: #f0fbf5; }
+    .status.warn { color: var(--warning); border-color: #f2ddb7; background: #fff8ed; }
+    .status.err { color: var(--danger); border-color: #efc9c9; background: #fff2f2; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+    th, td { padding: 10px; border-bottom: 1px solid var(--border); vertical-align: top; text-align: left; }
+    th { background: #f4f7fb; color: var(--blue-900); position: sticky; top: 0; }
+    .table-wrap { overflow: auto; max-height: 58vh; border: 1px solid var(--border); border-radius: 14px; }
+    a { color: var(--blue-700); font-weight: 700; text-decoration: none; }
+    .small { font-size: 12px; color: var(--muted); }
+    .badge { display:inline-block; padding: 4px 8px; border-radius: 999px; background: #edf2f7; font-size: 12px; }
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .sidebar { position: relative; }
+      .grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="logo">F+</div>
+        <div>
+          <h1>FinancePlus</h1>
+          <span>Mail Archive Enterprise</span>
+        </div>
+      </div>
+      <div class="nav">
+        <button class="active" onclick="showPanel('dashboard', this)">🏦 Dashboard</button>
+        <button onclick="showPanel('scarica', this)">📥 Scarica Mail</button>
+        <button onclick="showPanel('clienti', this); loadClients();">📂 Archivio Clienti</button>
+        <button onclick="showPanel('mittenti', this); loadSenders();">👤 Archivio Mittenti</button>
+        <button onclick="showPanel('ricerca', this)">🔍 Ricerca Avanzata</button>
+        <button onclick="showPanel('report', this)">📄 Report PDF</button>
+        <button onclick="showPanel('elimina', this); loadSavedEmails();">🗑️ Elimina Mail Salvate</button>
+        <button onclick="showPanel('impostazioni', this); loadSettings();">⚙️ Impostazioni</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <div class="topbar">
+        <div>
+          <h2 id="pageTitle">Dashboard operativa</h2>
+          <div class="subtitle">Archivio Gmail, allegati, clienti, mittenti, duplicati e report PDF.</div>
+        </div>
+        <div class="pill" id="lastUpdate">Avvio...</div>
+      </div>
+
+      <section id="dashboard" class="panel active">
+        <div class="grid">
+          <div class="card"><div class="stat-label">Email analizzate</div><div class="stat-value" id="stEmail">0</div></div>
+          <div class="card"><div class="stat-label">Allegati scaricati</div><div class="stat-value" id="stAllegati">0</div></div>
+          <div class="card"><div class="stat-label">Clienti</div><div class="stat-value" id="stClienti">0</div></div>
+          <div class="card"><div class="stat-label">Mittenti</div><div class="stat-value" id="stMittenti">0</div></div>
+          <div class="card"><div class="stat-label">Duplicati esclusi</div><div class="stat-value" id="stDuplicati">0</div></div>
+          <div class="card"><div class="stat-label">Da verificare</div><div class="stat-value" id="stVerificare">0</div></div>
+          <div class="card"><div class="stat-label">Errori</div><div class="stat-value" id="stErrori">0</div></div>
+          <div class="card"><div class="stat-label">Spazio occupato</div><div class="stat-value" id="stSpazio">0 B</div></div>
+        </div>
+        <div class="actions">
+          <button class="btn" onclick="runSetup()">Inizializza struttura</button>
+          <button class="btn secondary" onclick="openRoot()">Apri Drive</button>
+          <button class="btn light" onclick="openMaster()">Apri registro master</button>
+          <button class="btn light" onclick="refreshStats()">Aggiorna statistiche</button>
+        </div>
+        <div id="dashStatus" class="status">Pronto. Prima esegui “Inizializza struttura”, poi “Scarica Mail”.</div>
+      </section>
+
+      <section id="scarica" class="panel">
+        <h3>📥 Scarica Mail e Allegati</h3>
+        <p class="small">Il sistema prende automaticamente i mittenti da Gmail, riconosce il cliente da mail/allegati, crea l’anagrafica cliente e mette i non abbinati nella cartella temporanea.</p>
+        <div class="form-row">
+          <label>Data inizio <input id="startDate" type="date" value="2026-04-01"></label>
+          <label>Data fine esclusiva <input id="endDate" type="date" value="2026-06-27"></label>
+          <label><input id="useTodayEnd" type="checkbox" checked style="min-width:0"> Fino a oggi automaticamente</label>
+          <label>Max thread <input id="maxThreads" type="number" min="1" max="1000" value="300"></label>
+          <label><input id="genReports" type="checkbox" checked style="min-width:0"> Report automatici</label>
+          <label><input id="trashAfterArchive" type="checkbox" style="min-width:0"> Cestina Gmail dopo salvataggio senza errori</label>
+        </div>
+        <div class="actions">
+          <button class="btn light" onclick="saveUiSettings()">Salva impostazioni</button>
+          <button class="btn secondary" onclick="runArchive()">Scarica adesso</button>
+          <button class="btn" onclick="enableAutoArchive()">Attiva automatico</button>
+          <button class="btn light" onclick="disableAutoArchive()">Disattiva automatico</button>
+          <button class="btn light" onclick="refreshStats()">Aggiorna statistiche</button>
+        </div>
+        <div id="archiveStatus" class="status">In attesa. Dopo aver salvato le impostazioni una volta, il programma le riutilizza automaticamente.</div>
+      </section>
+
+      <section id="clienti" class="panel">
+        <h3>📂 Archivio Clienti</h3>
+        <div class="actions">
+          <button class="btn" onclick="loadClients()">Aggiorna elenco clienti</button>
+        </div>
+        <div class="table-wrap"><table id="clientsTable"></table></div>
+      </section>
+
+      <section id="mittenti" class="panel">
+        <h3>👤 Archivio Mittenti</h3>
+        <div class="actions">
+          <button class="btn" onclick="loadSenders()">Aggiorna elenco mittenti</button>
+        </div>
+        <div class="table-wrap"><table id="sendersTable"></table></div>
+      </section>
+
+      <section id="ricerca" class="panel">
+        <h3>🔍 Ricerca Avanzata</h3>
+        <p class="small">Cerca per cliente, partita IVA, codice fiscale, PEC, email, nome allegato, oggetto, banca, finanziamento, numero pratica o parola chiave.</p>
+        <div class="form-row">
+          <input id="searchTerm" type="text" placeholder="Scrivi una parola chiave..." style="min-width:320px">
+          <button class="btn" onclick="runSearch()">Cerca</button>
+        </div>
+        <div id="searchStatus" class="status">Nessuna ricerca eseguita.</div>
+        <div class="table-wrap"><table id="searchTable"></table></div>
+      </section>
+
+      <section id="report" class="panel">
+        <h3>📄 Report PDF</h3>
+        <div class="card">
+          <h4>Report cliente</h4>
+          <div class="form-row">
+            <input id="reportClient" type="text" placeholder="Denominazione cliente esatta" style="min-width:360px">
+            <button class="btn secondary" onclick="makeClientReport()">Genera PDF cliente</button>
+          </div>
+        </div>
+        <br>
+        <div class="card">
+          <h4>Report mittente</h4>
+          <div class="form-row">
+            <input id="reportSender" type="text" placeholder="Email o nome mittente" style="min-width:360px">
+            <button class="btn secondary" onclick="makeSenderReport()">Genera PDF mittente</button>
+          </div>
+        </div>
+        <div id="reportStatus" class="status">Pronto per generare report PDF.</div>
+      </section>
+
+      <section id="elimina" class="panel">
+        <h3>🗑️ Elimina Mail Salvate</h3>
+        <p class="small">Qui vedi le email già registrate nel sistema. Seleziona solo quelle già salvate correttamente: saranno spostate nel Cestino di Gmail, non eliminate definitivamente.</p>
+        <div class="actions">
+          <button class="btn" onclick="loadSavedEmails()">Aggiorna elenco</button>
+          <button class="btn danger" onclick="deleteSelectedSavedEmails()">Elimina selezionate da Gmail</button>
+        </div>
+        <div id="deleteStatus" class="status">Carica l’elenco delle email salvate.</div>
+        <div class="table-wrap"><table id="savedEmailsTable"></table></div>
+      </section>
+
+      <section id="impostazioni" class="panel">
+        <h3>⚙️ Impostazioni operative</h3>
+        <div class="card">
+          <p><b>Cartella principale Drive:</b> ARCHIVIO_EMAIL_ALLEGATI_CLIENTI_2026</p>
+          <p><b>Registro master:</b> Registro_mail_allegati_2026</p>
+          <p><b>Duplicati:</b> controllo hash MD5 su ogni allegato</p>
+          <p><b>Clienti:</b> anagrafica creata automaticamente dal contenuto di email e allegati. I non abbinati vanno in “Temporanea - Da abbinare”.</p>
+          <p><b>Mittenti:</b> rilevati automaticamente da Gmail.</p>
+          <p><b>Alias:</b> facoltativi, solo per correggere abbreviazioni difficili.</p>
+          <div class="form-row">
+            <label>Trigger automatico ogni ore <input id="autoTriggerHours" type="number" min="1" max="24" value="1"></label>
+          </div>
+          <div class="actions">
+            <button class="btn light" onclick="loadSettings()">Carica impostazioni salvate</button>
+            <button class="btn" onclick="saveUiSettings()">Salva impostazioni</button>
+            <button class="btn secondary" onclick="enableAutoArchive()">Attiva scarico automatico</button>
+            <button class="btn light" onclick="disableAutoArchive()">Disattiva scarico automatico</button>
+          </div>
+          <div id="settingsStatus" class="status">Le impostazioni vengono salvate nel Registro Master, foglio Configurazione.</div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+<script>
+  let currentStats = null;
+
+  function showPanel(id, btn) {
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('.nav button').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const titles = {
+      dashboard: 'Dashboard operativa',
+      scarica: 'Scarica Mail',
+      clienti: 'Archivio Clienti',
+      mittenti: 'Archivio Mittenti',
+      ricerca: 'Ricerca Avanzata',
+      report: 'Report PDF',
+      elimina: 'Elimina Mail Salvate',
+      impostazioni: 'Impostazioni'
+    };
+    document.getElementById('pageTitle').textContent = titles[id] || 'FinancePlus';
+  }
+
+  function setStatus(id, text, type) {
+    const el = document.getElementById(id);
+    el.className = 'status ' + (type || '');
+    el.textContent = text;
+  }
+
+  function refreshStats() {
+    google.script.run
+      .withSuccessHandler(applyStats)
+      .withFailureHandler(err => setStatus('dashStatus', 'Errore statistiche: ' + err.message, 'err'))
+      .getDashboardStats();
+  }
+
+  function applyStats(s) {
+    currentStats = s;
+    document.getElementById('stEmail').textContent = s.emailAnalizzate || 0;
+    document.getElementById('stAllegati').textContent = s.allegatiScaricati || 0;
+    document.getElementById('stClienti').textContent = s.clienti || 0;
+    document.getElementById('stMittenti').textContent = s.mittenti || 0;
+    document.getElementById('stDuplicati').textContent = s.duplicatiEsclusi || 0;
+    document.getElementById('stVerificare').textContent = s.daVerificare || 0;
+    document.getElementById('stErrori').textContent = s.errori || 0;
+    document.getElementById('stSpazio').textContent = s.spazio || '0 B';
+    document.getElementById('lastUpdate').textContent = 'Aggiornato: ' + (s.lastUpdate || '');
+    setStatus('dashStatus', 'Sistema pronto. Cartella Drive e registro master disponibili.', 'ok');
+  }
+
+  function runSetup() {
+    setStatus('dashStatus', 'Inizializzazione struttura Drive e Registro Master...', 'warn');
+    google.script.run
+      .withSuccessHandler(s => { applyStats(s); loadSettings(); setStatus('dashStatus', 'Struttura creata/aggiornata correttamente.', 'ok'); })
+      .withFailureHandler(err => setStatus('dashStatus', 'Errore setup: ' + err.message, 'err'))
+      .setup();
+  }
+
+  function getUiSettings() {
+    return {
+      startDate: document.getElementById('startDate').value,
+      endDateExclusive: document.getElementById('endDate').value,
+      useTodayEnd: document.getElementById('useTodayEnd').checked,
+      maxThreads: Number(document.getElementById('maxThreads').value || 300),
+      generateReports: document.getElementById('genReports').checked,
+      trashAfterArchive: document.getElementById('trashAfterArchive').checked,
+      autoTriggerHours: Number(document.getElementById('autoTriggerHours') ? document.getElementById('autoTriggerHours').value || 1 : 1)
+    };
+  }
+
+  function applySettings(s) {
+    if (!s) return;
+    document.getElementById('startDate').value = s.startDate || '2026-04-01';
+    document.getElementById('endDate').value = s.endDateExclusive || '2026-06-27';
+    document.getElementById('useTodayEnd').checked = !!s.useTodayEnd;
+    document.getElementById('maxThreads').value = s.maxThreads || 300;
+    document.getElementById('genReports').checked = s.generateReports !== false;
+    document.getElementById('trashAfterArchive').checked = !!s.trashAfterArchive;
+    if (document.getElementById('autoTriggerHours')) document.getElementById('autoTriggerHours').value = s.autoTriggerHours || 1;
+  }
+
+  function loadSettings() {
+    google.script.run
+      .withSuccessHandler(s => { applySettings(s); if (document.getElementById('settingsStatus')) setStatus('settingsStatus', 'Impostazioni caricate.', 'ok'); })
+      .withFailureHandler(err => { if (document.getElementById('settingsStatus')) setStatus('settingsStatus', 'Errore impostazioni: ' + err.message, 'err'); })
+      .getSavedSettings();
+  }
+
+  function saveUiSettings() {
+    const options = getUiSettings();
+    google.script.run
+      .withSuccessHandler(s => { applySettings(s); setStatus('archiveStatus', 'Impostazioni salvate. Da ora il sistema le riutilizza automaticamente.', 'ok'); if (document.getElementById('settingsStatus')) setStatus('settingsStatus', 'Impostazioni salvate.', 'ok'); })
+      .withFailureHandler(err => { setStatus('archiveStatus', 'Errore salvataggio impostazioni: ' + err.message, 'err'); if (document.getElementById('settingsStatus')) setStatus('settingsStatus', 'Errore salvataggio: ' + err.message, 'err'); })
+      .saveSettings(options);
+  }
+
+  function runArchive() {
+    const options = getUiSettings();
+    options.saveAsDefault = true;
+    setStatus('archiveStatus', 'Elaborazione in corso. Non chiudere questa finestra durante la prima autorizzazione Gmail/Drive...', 'warn');
+    google.script.run
+      .withSuccessHandler(res => {
+        const msg = [
+          'Completato.',
+          'Query: ' + res.query,
+          'Thread analizzati: ' + res.threadsAnalizzati,
+          'Email analizzate: ' + res.emailAnalizzate,
+          'Allegati analizzati: ' + res.allegatiAnalizzati,
+          'Scaricati: ' + res.scaricati,
+          'Duplicati: ' + res.duplicati,
+          'Errori: ' + res.errori,
+          'Report generati: ' + res.reportGenerati,
+          'Email Gmail cestinate automaticamente: ' + (res.gmailCestinate || 0)
+        ].join('\n');
+        setStatus('archiveStatus', msg, 'ok');
+        applyStats(res.stats);
+      })
+      .withFailureHandler(err => setStatus('archiveStatus', 'Errore scarico: ' + err.message, 'err'))
+      .runArchive(options);
+  }
+
+  function enableAutoArchive() {
+    const h = Number(document.getElementById('autoTriggerHours') ? document.getElementById('autoTriggerHours').value || 1 : 1);
+    saveUiSettings();
+    google.script.run
+      .withSuccessHandler(res => setStatus('archiveStatus', res.message || 'Scarico automatico attivato.', 'ok'))
+      .withFailureHandler(err => setStatus('archiveStatus', 'Errore trigger automatico: ' + err.message, 'err'))
+      .createAutoArchiveTrigger(h);
+  }
+
+  function disableAutoArchive() {
+    google.script.run
+      .withSuccessHandler(res => setStatus('archiveStatus', 'Scarico automatico disattivato. Trigger rimossi: ' + (res.removed || 0), 'ok'))
+      .withFailureHandler(err => setStatus('archiveStatus', 'Errore disattivazione trigger: ' + err.message, 'err'))
+      .deleteAutoArchiveTriggers();
+  }
+
+  function loadClients() {
+    google.script.run
+      .withSuccessHandler(rows => renderClients(rows))
+      .withFailureHandler(err => renderError('clientsTable', err.message))
+      .listClients();
+  }
+
+  function renderClients(rows) {
+    const html = ['<tr><th>Cliente</th><th>Stato</th><th>P.IVA/CF/PEC</th><th>Email</th><th>Allegati</th><th>Duplicati</th><th>Errori</th><th>Spazio</th><th>Cartella</th><th>Report</th></tr>'];
+    rows.forEach(r => {
+      html.push(`<tr>
+        <td><b>${esc(r.cliente)}</b><br><span class="small">Alias: ${esc(r.alias || '')}</span></td>
+        <td><span class="badge">${esc(r.stato || '')}</span></td>
+        <td><span class="small">P.IVA: ${esc(r.piva || '-')}<br>CF: ${esc(r.cf || '-')}<br>PEC: ${esc(r.pec || '-')}</span></td>
+        <td>${esc(r.email)}</td><td>${esc(r.allegati)}</td><td>${esc(r.duplicati)}</td><td>${esc(r.errori)}</td><td>${esc(r.spazio)}</td>
+        <td>${r.cartella ? `<a href="${r.cartella}" target="_blank">Apri</a>` : '-'}</td>
+        <td><button class="btn light" onclick="quickClientReport('${encodeURIComponent(r.cliente)}')">PDF</button></td>
+      </tr>`);
+    });
+    document.getElementById('clientsTable').innerHTML = html.join('');
+  }
+
+  function loadSenders() {
+    google.script.run
+      .withSuccessHandler(rows => renderSenders(rows))
+      .withFailureHandler(err => renderError('sendersTable', err.message))
+      .listSenders();
+  }
+
+  function renderSenders(rows) {
+    const html = ['<tr><th>Mittente</th><th>Email ricevute</th><th>Allegati</th><th>Duplicati</th><th>Clienti collegati</th><th>Report</th></tr>'];
+    rows.forEach(r => {
+      html.push(`<tr>
+        <td><b>${esc(r.mittente)}</b><br><span class="small">${esc(r.aggiornamento || '')}</span></td>
+        <td>${esc(r.email)}</td><td>${esc(r.allegati)}</td><td>${esc(r.duplicati)}</td><td>${esc(r.clienti)}</td>
+        <td><button class="btn light" onclick="quickSenderReport('${encodeURIComponent(r.mittente)}')">PDF</button></td>
+      </tr>`);
+    });
+    document.getElementById('sendersTable').innerHTML = html.join('');
+  }
+
+  function runSearch() {
+    const term = document.getElementById('searchTerm').value;
+    if (!term.trim()) { setStatus('searchStatus', 'Inserisci una parola chiave.', 'warn'); return; }
+    setStatus('searchStatus', 'Ricerca in corso...', 'warn');
+    google.script.run
+      .withSuccessHandler(rows => renderSearch(rows))
+      .withFailureHandler(err => setStatus('searchStatus', 'Errore ricerca: ' + err.message, 'err'))
+      .searchArchive(term);
+  }
+
+  function renderSearch(rows) {
+    setStatus('searchStatus', 'Risultati trovati: ' + rows.length, rows.length ? 'ok' : 'warn');
+    const html = ['<tr><th>Data</th><th>Mittente</th><th>Cliente</th><th>Oggetto</th><th>Allegato</th><th>Stato</th><th>File</th></tr>'];
+    rows.forEach(r => {
+      html.push(`<tr>
+        <td>${esc(r.data)}<br><span class="small">${esc(r.ora)}</span></td>
+        <td>${esc(r.mittente)}</td>
+        <td><b>${esc(r.cliente)}</b></td>
+        <td>${esc(r.oggetto)}<br><span class="small">${esc(r.descrizione || '')}</span></td>
+        <td>${esc(r.allegato)}</td>
+        <td><span class="badge">${esc(r.stato)}</span></td>
+        <td>${r.file ? `<a href="${r.file}" target="_blank">Apri</a>` : '-'}</td>
+      </tr>`);
+    });
+    document.getElementById('searchTable').innerHTML = html.join('');
+  }
+
+  function makeClientReport() {
+    const cliente = document.getElementById('reportClient').value;
+    if (!cliente.trim()) { setStatus('reportStatus', 'Inserisci la denominazione cliente.', 'warn'); return; }
+    setStatus('reportStatus', 'Generazione report cliente in corso...', 'warn');
+    google.script.run
+      .withSuccessHandler(res => setStatus('reportStatus', 'Report creato: ' + res.name + '\n' + res.url, 'ok'))
+      .withFailureHandler(err => setStatus('reportStatus', 'Errore report cliente: ' + err.message, 'err'))
+      .generateClientReport(cliente);
+  }
+
+  function makeSenderReport() {
+    const mittente = document.getElementById('reportSender').value;
+    if (!mittente.trim()) { setStatus('reportStatus', 'Inserisci email o nome mittente.', 'warn'); return; }
+    setStatus('reportStatus', 'Generazione report mittente in corso...', 'warn');
+    google.script.run
+      .withSuccessHandler(res => setStatus('reportStatus', 'Report creato: ' + res.name + '\n' + res.url, 'ok'))
+      .withFailureHandler(err => setStatus('reportStatus', 'Errore report mittente: ' + err.message, 'err'))
+      .generateSenderReport(mittente);
+  }
+
+  function quickClientReport(encoded) {
+    document.getElementById('reportClient').value = decodeURIComponent(encoded);
+    showPanel('report');
+    makeClientReport();
+  }
+
+  function quickSenderReport(encoded) {
+    document.getElementById('reportSender').value = decodeURIComponent(encoded);
+    showPanel('report');
+    makeSenderReport();
+  }
+
+  function loadSavedEmails() {
+    setStatus('deleteStatus', 'Caricamento email salvate...', 'warn');
+    google.script.run
+      .withSuccessHandler(rows => renderSavedEmails(rows))
+      .withFailureHandler(err => setStatus('deleteStatus', 'Errore caricamento email salvate: ' + err.message, 'err'))
+      .listArchivedEmails();
+  }
+
+  function renderSavedEmails(rows) {
+    setStatus('deleteStatus', 'Email salvate trovate: ' + rows.length, rows.length ? 'ok' : 'warn');
+    const html = ['<tr><th>Sel.</th><th>Data</th><th>Mittente</th><th>Cliente</th><th>Oggetto</th><th>Allegati</th><th>Gmail</th></tr>'];
+    rows.forEach(r => {
+      const disabled = r.gmailStatus ? 'disabled' : '';
+      html.push(`<tr>
+        <td><input type="checkbox" class="mailSel" value="${esc(r.messageId)}" ${disabled} style="min-width:0"></td>
+        <td>${esc(r.data)}<br><span class="small">${esc(r.ora)}</span></td>
+        <td>${esc(r.mittente)}</td>
+        <td><b>${esc(r.clienti)}</b></td>
+        <td>${esc(r.oggetto)}</td>
+        <td>Tot: ${esc(r.allegati)}<br><span class="small">OK: ${esc(r.scaricati)} | Dup: ${esc(r.duplicati)} | Err: ${esc(r.errori)}</span></td>
+        <td>${esc(r.gmailStatus || 'Presente')}</td>
+      </tr>`);
+    });
+    document.getElementById('savedEmailsTable').innerHTML = html.join('');
+  }
+
+  function deleteSelectedSavedEmails() {
+    const ids = Array.from(document.querySelectorAll('.mailSel:checked')).map(x => x.value);
+    if (!ids.length) { setStatus('deleteStatus', 'Seleziona almeno una email.', 'warn'); return; }
+    if (!confirm('Spostare nel Cestino Gmail le email selezionate già salvate?')) return;
+    setStatus('deleteStatus', 'Spostamento nel Cestino Gmail in corso...', 'warn');
+    google.script.run
+      .withSuccessHandler(res => {
+        setStatus('deleteStatus', 'Email spostate nel Cestino Gmail: ' + res.moved + (res.errors && res.errors.length ? '\nErrori: ' + res.errors.join('\n') : ''), res.errors && res.errors.length ? 'warn' : 'ok');
+        if (res.stats) applyStats(res.stats);
+        loadSavedEmails();
+      })
+      .withFailureHandler(err => setStatus('deleteStatus', 'Errore eliminazione Gmail: ' + err.message, 'err'))
+      .deleteSavedEmails(ids);
+  }
+
+  function openRoot() {
+    if (currentStats && currentStats.rootFolderUrl) window.open(currentStats.rootFolderUrl, '_blank');
+    else refreshStats();
+  }
+
+  function openMaster() {
+    if (currentStats && currentStats.masterUrl) window.open(currentStats.masterUrl, '_blank');
+    else refreshStats();
+  }
+
+  function renderError(tableId, msg) {
+    document.getElementById(tableId).innerHTML = `<tr><td>Errore: ${esc(msg)}</td></tr>`;
+  }
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#039;');
+  }
+
+  window.addEventListener('load', function(){ refreshStats(); loadSettings(); });
+</script>
+</body>
+</html>
